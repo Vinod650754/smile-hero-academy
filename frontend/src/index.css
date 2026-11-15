@@ -1,16 +1,15 @@
 :root {
-  --color-bone: #f8fcff;
-  --color-ink: #161310;
-  --color-ink-soft: #334155;
-  --color-sky-cobalt: #1d4ed8;
-  --color-sky-cobalt-pressed: #1e3a8a;
-  --color-dental-cyan: #0ea5e9;
-  --color-dental-mint: #14b8a6;
-  --color-dental-ice: #e0f2fe;
-  --color-border-tan: #bae6fd;
-  --font-display: 'Pixelify Sans', ui-monospace, monospace;
-  --font-hud: 'VT323', ui-monospace, monospace;
-  --font-body: 'Inter', ui-sans-serif, sans-serif;
+  --navy: #18324b;
+  --teal: #0d9488;
+  --teal-dark: #0b8178;
+  --mint: #dff8ef;
+  --yellow: #ffd166;
+  --coral: #ff7b7b;
+  --lav: #eee8ff;
+  --sky: #e6f6ff;
+  --white: #ffffff;
+  --muted: #60758a;
+  --border-soft: #e5eef5;
 }
 
 * {
@@ -19,72 +18,56 @@
 
 body {
   margin: 0;
-  background: #dbeafe;
-  background-image: radial-gradient(#93c5fd 1.5px, transparent 1.5px);
-  background-size: 20px 20px;
-  font-family: var(--font-body);
-  color: var(--color-ink);
+  background: #f5fbff;
+  color: var(--navy);
+  font-family: ui-rounded, "Trebuchet MS", "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* =========================================
-   ADAPTIVE APP SHELL (Mobile -> Tablet -> Desktop)
+   ADAPTIVE SHELL & NAVIGATION
    ========================================= */
 .bb-app-shell {
-  width: 100%;
-  max-width: 480px;
+  max-width: 1100px;
   margin: 0 auto;
   min-height: 100vh;
-  background: #eff6ff;
-  border-left: 2px solid var(--color-ink);
-  border-right: 2px solid var(--color-ink);
-  padding: 14px 14px 88px;
-  position: relative;
+  padding: 16px 22px 92px;
 }
 
 @media (min-width: 768px) {
   .bb-app-shell {
-    max-width: 1120px;
-    border-left: none;
-    border-right: none;
-    background: transparent;
-    padding: 20px 28px 48px;
+    padding: 18px 24px 54px;
   }
 }
 
-/* =========================================
-   ADAPTIVE NAVBAR (Bottom Bar on Mobile, Top Nav on Desktop)
-   ========================================= */
 .bb-navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 14px;
-  background: #ffffff;
-  border: 2px solid var(--color-ink);
-  box-shadow: 5px 5px 0 var(--color-ink);
-  margin-bottom: 18px;
+  padding: 12px 0 18px;
+}
+
+.bb-brand {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.bb-brand-badge {
+  background: var(--yellow);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 1.2rem;
 }
 
 .bb-desktop-nav {
   display: none;
-}
-
-.bb-mobile-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  background: #ffffff;
-  border-top: 3px solid var(--color-ink);
-  border-left: 2px solid var(--color-ink);
-  border-right: 2px solid var(--color-ink);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 6px 4px;
-  z-index: 40;
 }
 
 @media (min-width: 768px) {
@@ -93,488 +76,418 @@ body {
     align-items: center;
     gap: 8px;
   }
-
-  .bb-mobile-bottom-nav {
-    display: none;
-  }
 }
 
 .bb-nav-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
-  background: #f8fcff;
-  color: var(--color-ink);
-  border: 2px solid var(--color-ink);
-  box-shadow: 3px 3px 0 var(--color-ink);
-  font-family: var(--font-hud);
-  font-size: 17px;
-  text-transform: uppercase;
+  padding: 9px 14px;
+  border-radius: 99px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.92rem;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  transition: all 0.15s ease;
 }
 
 .bb-nav-pill:hover {
-  transform: translate(-1px, -1px);
-  background: #e0f2fe;
+  background: #e6f6ff;
+  color: var(--navy);
 }
 
 .bb-nav-pill--active {
-  background: #1d4ed8;
-  color: #ffffff;
+  background: var(--teal);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.22);
 }
 
-.bb-nav-pill--active:hover {
-  background: #1e40af;
+.bb-score-pill {
+  background: var(--white);
+  border: 1px solid #e4edf4;
+  border-radius: 99px;
+  padding: 9px 14px;
+  font-weight: 900;
+  font-size: 0.92rem;
+  box-shadow: 0 4px 14px rgba(24, 50, 75, 0.05);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid #e3edf5;
+  box-shadow: 0 -4px 20px rgba(24, 50, 75, 0.06);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 8px 6px;
+  z-index: 40;
+}
+
+@media (min-width: 768px) {
+  .bb-mobile-bottom-nav {
+    display: none;
+  }
 }
 
 /* =========================================
-   HERO WIDGET ("Ready to save your smile?")
+   BUTTONS
    ========================================= */
-.bb-hero-banner {
-  background: linear-gradient(135deg, #e0f2fe 0%, #f0fdfa 60%, #fef9c3 100%);
-  border: 2px solid var(--color-ink);
-  box-shadow: 7px 7px 0 var(--color-ink);
-  padding: 20px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 16px) 0,
-    100% 16px,
-    100% 100%,
-    16px 100%,
-    0 calc(100% - 16px)
-  );
+.bb-btn {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
 
-@media (min-width: 768px) {
-  .bb-hero-banner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 32px 36px;
-    gap: 32px;
-  }
+.bb-btn:hover {
+  filter: brightness(0.97);
+  transform: translateY(-1px);
 }
 
-.bb-hero-content {
-  flex: 1;
-  max-width: 560px;
+.bb-btn--primary {
+  background: var(--teal);
+  color: var(--white);
 }
 
-.bb-hero-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 1.05;
-  color: var(--color-ink);
-  margin: 8px 0 12px;
+.bb-btn--secondary {
+  background: var(--sky);
+  color: var(--navy);
 }
 
-@media (min-width: 768px) {
-  .bb-hero-title {
-    font-size: 46px;
-  }
+.bb-btn--gold {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.bb-btn--quiet {
+  background: #eef3f8;
+  color: var(--navy);
+}
+
+/* =========================================
+   HERO SECTION & CSS TOOTH SUPERHERO
+   ========================================= */
+.bb-hero {
+  background: linear-gradient(125deg, #e0f8f1, #e5f4ff 65%, #fff4d4);
+  border-radius: 28px;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  align-items: center;
+  gap: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bb-eyebrow {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-weight: 900;
+  color: var(--teal-dark);
+}
+
+.bb-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 1.02;
+  margin: 12px 0;
+  color: var(--navy);
+}
+
+.bb-hero p {
+  font-size: 1.06rem;
+  max-width: 520px;
+  line-height: 1.6;
+  color: #405a70;
+  margin: 0 0 20px;
 }
 
 .bb-hero-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 18px;
+  gap: 10px;
 }
 
-/* Interactive Mascot Widget */
-.bb-mascot-stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.bb-hero-art {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  position: relative;
   cursor: pointer;
   user-select: none;
 }
 
-.bb-mascot-card {
-  width: 152px;
-  height: 152px;
+.bb-tooth-hero {
+  width: 180px;
+  height: 200px;
   background: #ffffff;
-  border: 3px solid var(--color-ink);
-  box-shadow: 6px 6px 0 #0ea5e9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  border: 5px solid #d4eaf0;
+  border-radius: 48% 48% 42% 42% / 40% 40% 58% 58%;
   position: relative;
-  transition: transform 0.15s ease;
-}
-
-@media (min-width: 768px) {
-  .bb-mascot-card {
-    width: 186px;
-    height: 186px;
-  }
-}
-
-.bb-mascot-card:hover {
-  transform: translate(-2px, -2px) rotate(-1deg);
-}
-
-.bb-mascot-card:active {
-  transform: scale(0.95);
-}
-
-@keyframes bb-float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-.bb-mascot-float {
-  animation: bb-float 2.4s ease-in-out infinite;
-}
-
-/* =========================================
-   RESPONSIVE FIXED-SIZE QUEST CARD GRID
-   ========================================= */
-.bb-quest-grid {
+  box-shadow: 0 16px 0 #b9e8df, 0 24px 35px rgba(24, 50, 75, 0.08);
+  transform: rotate(-5deg);
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  place-items: center;
+  transition: transform 0.2s ease;
 }
 
-@media (min-width: 768px) {
-  .bb-quest-grid {
-    grid-template-columns: repeat(auto-fill, minmax(305px, 340px));
-    justify-content: center;
-    gap: 24px;
+.bb-hero-art:hover .bb-tooth-hero {
+  transform: rotate(-2deg) scale(1.03);
+}
+
+.bb-tooth-hero:before,
+.bb-tooth-hero:after {
+  content: "";
+  position: absolute;
+  top: 63px;
+  width: 13px;
+  height: 18px;
+  background: var(--navy);
+  border-radius: 50%;
+}
+
+.bb-tooth-hero:before {
+  left: 51px;
+}
+
+.bb-tooth-hero:after {
+  right: 51px;
+}
+
+.bb-tooth-smile {
+  position: absolute;
+  top: 90px;
+  width: 44px;
+  height: 23px;
+  border-bottom: 5px solid var(--coral);
+  border-radius: 0 0 50% 50%;
+}
+
+.bb-tooth-cape {
+  position: absolute;
+  right: 2px;
+  top: 78px;
+  font-size: 2.9rem;
+  transform: rotate(18deg);
+}
+
+.bb-spark {
+  position: absolute;
+  font-size: 1.9rem;
+}
+
+.bb-spark--1 {
+  top: 10px;
+  right: 28px;
+}
+
+.bb-spark--2 {
+  bottom: 18px;
+  left: 16px;
+}
+
+/* =========================================
+   PROGRESS BAR & MISSION CARDS
+   ========================================= */
+.bb-progress-wrap {
+  background: var(--white);
+  border: 1px solid var(--border-soft);
+  padding: 17px 20px;
+  border-radius: 18px;
+  margin-top: 18px;
+  box-shadow: 0 4px 16px rgba(24, 50, 75, 0.03);
+}
+
+.bb-progress-line {
+  height: 10px;
+  background: #edf2f7;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 9px;
+}
+
+.bb-progress-line span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #0d9488, #83dfb9);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.bb-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 28px 0 14px;
+}
+
+.bb-section-head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.bb-section-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.bb-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.bb-card {
+  background: var(--white);
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 7px 24px rgba(24, 50, 75, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bb-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(24, 50, 75, 0.07);
+}
+
+.bb-card-icon {
+  height: 76px;
+  width: 76px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+}
+
+.bb-card small {
+  font-weight: 800;
+  color: #708397;
+  letter-spacing: 0.04em;
+}
+
+.bb-card h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.bb-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.bb-card .bb-btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.bb-panel {
+  background: var(--white);
+  border: 1px solid #e3edf5;
+  border-radius: 24px;
+  padding: clamp(18px, 4vw, 30px);
+  box-shadow: 0 7px 24px rgba(24, 50, 75, 0.04);
+}
+
+@media (max-width: 720px) {
+  .bb-app-shell {
+    padding: 10px 14px 86px;
+  }
+  .bb-hero {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .bb-hero-art {
+    min-height: 170px;
+    grid-row: 1;
+  }
+  .bb-tooth-hero {
+    width: 140px;
+    height: 155px;
+  }
+  .bb-tooth-hero:before,
+  .bb-tooth-hero:after {
+    top: 48px;
+  }
+  .bb-tooth-hero:before {
+    left: 38px;
+  }
+  .bb-tooth-hero:after {
+    right: 38px;
+  }
+  .bb-tooth-smile {
+    top: 70px;
+  }
+  .bb-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .bb-card {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    align-items: center;
+  }
+  .bb-card-icon {
+    grid-row: span 3;
+  }
+  .bb-card p,
+  .bb-card small {
+    grid-column: 2;
+  }
+  .bb-card .bb-btn {
+    grid-column: 1 / -1;
   }
 }
 
 /* =========================================
-   DENTAL BLUE PIXEL QUEST CARDS
-   ========================================= */
-.ow-quest-card {
-  width: 100%;
-  background-color: var(--color-bone);
-  color: var(--color-ink);
-  border: 2px solid var(--color-ink);
-  border-radius: 0;
-  box-shadow: 6px 6px 0 0 var(--color-ink);
-  font-family: var(--font-body);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 14px) 0,
-    100% 14px,
-    100% 100%,
-    14px 100%,
-    0 calc(100% - 14px)
-  );
-}
-
-.ow-quest-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 0 var(--color-ink);
-}
-
-.ow-quest-card:active {
-  transform: translate(3px, 3px);
-  box-shadow: 3px 3px 0 0 var(--color-ink);
-}
-
-.ow-quest-card__art {
-  position: relative;
-  height: 132px;
-  border-bottom: 2px solid var(--color-ink);
-  overflow: hidden;
-  image-rendering: pixelated;
-  background-color: var(--color-sky-cobalt);
-}
-
-.ow-quest-card__sky {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    #2563eb 0%,
-    #2563eb 62%,
-    #1d4ed8 62%,
-    #1d4ed8 100%
-  );
-}
-
-.ow-quest-card__sky--cyan {
-  background: linear-gradient(
-    to bottom,
-    #0284c7 0%,
-    #0284c7 62%,
-    #0369a1 62%,
-    #0369a1 100%
-  );
-}
-
-.ow-quest-card__sky--indigo {
-  background: linear-gradient(
-    to bottom,
-    #3b82f6 0%,
-    #3b82f6 62%,
-    #1e40af 62%,
-    #1e40af 100%
-  );
-}
-
-.ow-quest-card__sky--teal {
-  background: linear-gradient(
-    to bottom,
-    #0d9488 0%,
-    #0d9488 62%,
-    #115e59 62%,
-    #115e59 100%
-  );
-}
-
-.ow-quest-card__sun {
-  position: absolute;
-  top: 16px;
-  right: 26px;
-  width: 24px;
-  height: 24px;
-  background-color: #ffffff;
-  border: 2px solid var(--color-ink);
-  box-shadow:
-    -5px 0 0 #ffffff,
-    5px 0 0 #ffffff,
-    0 -5px 0 #ffffff,
-    0 5px 0 #ffffff;
-}
-
-.ow-quest-card__cloud {
-  position: absolute;
-  background-color: #e0f2fe;
-  border: 2px solid var(--color-ink);
-  height: 10px;
-}
-
-.ow-quest-card__cloud--a {
-  top: 28px;
-  left: 20px;
-  width: 38px;
-}
-
-.ow-quest-card__cloud--b {
-  top: 48px;
-  left: 74px;
-  width: 26px;
-}
-
-.ow-quest-card__mountain {
-  position: absolute;
-  bottom: 28px;
-  left: -10px;
-  right: -10px;
-  height: 58px;
-  background-color: #38bdf8;
-  clip-path: polygon(
-    0 100%,
-    10% 70%,
-    18% 84%,
-    28% 36%,
-    38% 70%,
-    48% 24%,
-    58% 60%,
-    68% 42%,
-    78% 68%,
-    88% 36%,
-    100% 60%,
-    100% 100%
-  );
-  border-top: 2px solid var(--color-ink);
-}
-
-.ow-quest-card__ground {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 30px;
-  background-color: #0d9488;
-  border-top: 2px solid var(--color-ink);
-  background-image: repeating-linear-gradient(
-    to right,
-    transparent 0 8px,
-    rgba(22, 19, 16, 0.2) 8px 12px
-  );
-}
-
-.ow-quest-card__sprite {
-  position: absolute;
-  right: 22px;
-  bottom: 18px;
-  font-size: 38px;
-  filter: drop-shadow(3px 3px 0 #161310);
-}
-
-.ow-quest-card__badge {
-  position: absolute;
-  bottom: 8px;
-  left: 12px;
-  font-family: var(--font-hud);
-  font-size: 16px;
-  letter-spacing: 0.08em;
-  padding: 3px 8px 2px;
-  background-color: var(--color-ink);
-  color: #ffffff;
-  border: 2px solid #ffffff;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.ow-quest-card__body {
-  padding: 15px 16px 16px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.ow-quest-card__kicker {
-  font-family: var(--font-hud);
-  font-size: 16px;
-  letter-spacing: 0.08em;
-  color: var(--color-sky-cobalt);
-  margin: 0 0 4px;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.ow-quest-card__title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 1.08;
-  color: var(--color-ink);
-  letter-spacing: -0.015em;
-  margin: 0 0 8px;
-}
-
-.ow-quest-card__copy {
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1.42;
-  color: var(--color-ink-soft);
-  margin: 0 0 14px;
-}
-
-.ow-quest-card__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 2px dotted var(--color-border-tan);
-}
-
-.ow-quest-card__stamp {
-  font-family: var(--font-hud);
-  font-size: 16px;
-  letter-spacing: 0.04em;
-  color: var(--color-ink-soft);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.ow-quest-card__stamp--accent {
-  color: #0284c7;
-  font-weight: 700;
-}
-
-/* =========================================
-   PIXEL BUTTONS
-   ========================================= */
-.bb-pixel-btn {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
-  background: #1d4ed8;
-  color: #ffffff;
-  border: 2px solid var(--color-ink);
-  box-shadow: 4px 4px 0 var(--color-ink);
-  padding: 10px 16px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: transform 0.1s ease;
-}
-
-.bb-pixel-btn:hover {
-  transform: translate(-1px, -1px);
-  background: #1e40af;
-}
-
-.bb-pixel-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-ink);
-}
-
-.bb-pixel-btn--secondary {
-  background: #ffffff;
-  color: var(--color-ink);
-}
-
-.bb-pixel-btn--secondary:hover {
-  background: #e0f2fe;
-}
-
-/* =========================================
-   TOOTH BOUNCING STAIR LOADER
+   SOFT ROUNDED TOOTH LOADER
    ========================================= */
 .bb-loader-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(224, 242, 254, 0.94);
-  backdrop-filter: blur(4px);
+  background: rgba(245, 251, 255, 0.92);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .bb-loader-box {
-  background: var(--color-bone);
-  border: 3px solid var(--color-ink);
-  box-shadow: 8px 8px 0 0 var(--color-ink);
-  padding: 48px 40px 28px;
+  background: var(--white);
+  border: 1px solid #e3edf5;
+  border-radius: 28px;
+  box-shadow: 0 14px 36px rgba(24, 50, 75, 0.08);
+  padding: 44px 40px 26px;
   text-align: center;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 14px) 0,
-    100% 14px,
-    100% 100%,
-    14px 100%,
-    0 calc(100% - 14px)
-  );
 }
 
 .loader {
   position: relative;
   width: 120px;
   height: 90px;
-  margin: 0 auto 14px;
+  margin: 0 auto 12px;
 }
 
 .loader:before {
@@ -584,11 +497,10 @@ body {
   left: 48px;
   height: 34px;
   width: 32px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 34'%3E%3Cpath d='M5 3 C2 3 1 7 2 12 C3 17 5 22 6 30 C6.5 32 9 32 10 29 L13 21 C14.5 19 17.5 19 19 21 L22 29 C23 32 25.5 32 26 30 C27 22 29 17 30 12 C31 7 30 3 27 3 C23 3 20 5 16 5 C12 5 9 3 5 3 Z' fill='%23ffffff' stroke='%23161310' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M7 8 C8 6 11 6 12 7' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 34'%3E%3Cpath d='M5 3 C2 3 1 7 2 12 C3 17 5 22 6 30 C6.5 32 9 32 10 29 L13 21 C14.5 19 17.5 19 19 21 L22 29 C23 32 25.5 32 26 30 C27 22 29 17 30 12 C31 7 30 3 27 3 C23 3 20 5 16 5 C12 5 9 3 5 3 Z' fill='%23ffffff' stroke='%2318324b' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M7 8 C8 6 11 6 12 7' fill='none' stroke='%230d9488' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-color: transparent;
   transform-origin: bottom center;
   animation: loading-bounce 0.5s ease-in-out infinite alternate;
 }
@@ -600,11 +512,11 @@ body {
   top: 0;
   height: 7px;
   width: 45px;
-  border-radius: 2px;
+  border-radius: 6px;
   box-shadow:
-    0 5px 0 #1d4ed8,
-    -35px 50px 0 #1d4ed8,
-    -70px 95px 0 #1d4ed8;
+    0 5px 0 #0d9488,
+    -35px 50px 0 #0d9488,
+    -70px 95px 0 #0d9488;
   animation: loading-step 1s ease-in-out infinite;
 }
 
@@ -620,7 +532,6 @@ body {
   }
   100% {
     bottom: 135px;
-    transform: scale(0.96, 1.04);
   }
 }
 
@@ -628,23 +539,23 @@ body {
   0% {
     box-shadow:
       0 10px 0 rgba(0, 0, 0, 0),
-      0 10px 0 #1d4ed8,
-      -35px 50px 0 #1d4ed8,
-      -70px 90px 0 #1d4ed8;
+      0 10px 0 #0d9488,
+      -35px 50px 0 #0d9488,
+      -70px 90px 0 #0d9488;
   }
   100% {
     box-shadow:
-      0 10px 0 #1d4ed8,
-      -35px 50px 0 #1d4ed8,
-      -70px 90px 0 #1d4ed8,
+      0 10px 0 #0d9488,
+      -35px 50px 0 #0d9488,
+      -70px 90px 0 #0d9488,
       -70px 90px 0 rgba(0, 0, 0, 0);
   }
 }
 
 .bb-loader-text {
-  font-family: var(--font-hud);
-  font-size: 22px;
-  letter-spacing: 0.08em;
-  color: var(--color-sky-cobalt);
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  color: var(--teal-dark);
   text-transform: uppercase;
 }

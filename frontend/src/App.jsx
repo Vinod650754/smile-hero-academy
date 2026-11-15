@@ -13,30 +13,30 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedGame, setSelectedGame] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [loaderText, setLoaderText] = useState('LOADING BRUSHBUDDY...');
+  const [loaderText, setLoaderText] = useState('Loading BrushBuddy...');
   const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
+    const timer = setTimeout(() => setIsLoading(false), 950);
     return () => clearTimeout(timer);
   }, []);
 
   const navigateToTab = (tab, gameKey = null, customLabel = null) => {
-    setLoaderText(customLabel || `LOADING ${tab.toUpperCase()}...`);
+    setLoaderText(customLabel || `Loading ${tab}...`);
     setIsLoading(true);
     setTimeout(() => {
       setSelectedGame(gameKey);
       setActiveTab(tab);
       setIsLoading(false);
-    }, 600);
+    }, 550);
   };
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'brush', label: 'Brush', icon: Sparkles },
-    { id: 'games', label: 'Arcade', icon: Gamepad2 },
+    { id: 'games', label: 'Games', icon: Gamepad2 },
     { id: 'streak', label: 'Streak', icon: Calendar },
-    { id: 'badges', label: 'Badges', icon: Award },
+    { id: 'badges', label: 'Rewards', icon: Award },
   ];
 
   return (
@@ -48,17 +48,15 @@ export default function App() {
       <main>
         {activeTab === 'home' && (
           <HomeHub
-            onOpenBrushTab={() => navigateToTab('brush', null, 'PREPARING BRUSH GUIDE...')}
-            onOpenBadgesTab={() => navigateToTab('badges', null, 'OPENING TROPHY SHELF...')}
-            onOpenArcadeTab={() => navigateToTab('games', null, 'ENTERING ARCADE...')}
-            onLaunchGame={(gameKey) =>
-              navigateToTab('games', gameKey, 'LOADING MINI-QUEST...')
-            }
+            onOpenBrushTab={() => navigateToTab('brush', null, 'Preparing Brush Battle...')}
+            onOpenBadgesTab={() => navigateToTab('badges', null, 'Opening Trophy Shelf...')}
+            onOpenArcadeTab={() => navigateToTab('games', null, 'Entering Games Zone...')}
+            onLaunchGame={(gameKey) => navigateToTab('games', gameKey, 'Starting Mission...')}
           />
         )}
 
         {activeTab === 'brush' && (
-          <div style={{ maxWidth: '540px', margin: '0 auto' }}>
+          <div className="bb-panel" style={{ maxWidth: '640px', margin: '0 auto' }}>
             <BrushTimer />
           </div>
         )}
@@ -71,13 +69,13 @@ export default function App() {
         )}
 
         {activeTab === 'streak' && (
-          <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+          <div className="bb-panel" style={{ maxWidth: '680px', margin: '0 auto' }}>
             <HabitCalendar />
           </div>
         )}
 
         {activeTab === 'badges' && (
-          <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+          <div className="bb-panel" style={{ maxWidth: '780px', margin: '0 auto' }}>
             <BadgeShelf />
           </div>
         )}
@@ -89,14 +87,15 @@ export default function App() {
         aria-label="Ask Dr. Tooth AI"
         style={{
           position: 'fixed',
-          bottom: '80px',
-          right: '20px',
-          width: '50px',
-          height: '50px',
-          background: '#0ea5e9',
+          bottom: '82px',
+          right: '22px',
+          width: '54px',
+          height: '54px',
+          borderRadius: '50%',
+          background: '#0d9488',
           color: '#ffffff',
-          border: '2px solid #161310',
-          boxShadow: '4px 4px 0 #161310',
+          border: 'none',
+          boxShadow: '0 8px 22px rgba(13, 148, 136, 0.35)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -104,7 +103,7 @@ export default function App() {
           zIndex: 50,
         }}
       >
-        <MessageCircle size={22} />
+        <MessageCircle size={24} />
       </button>
 
       {chatOpen && (
@@ -112,7 +111,8 @@ export default function App() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(22, 19, 16, 0.5)',
+            background: 'rgba(24, 50, 75, 0.4)',
+            backdropFilter: 'blur(3px)',
             zIndex: 100,
             display: 'flex',
             alignItems: 'center',
@@ -123,23 +123,28 @@ export default function App() {
           <div
             style={{
               width: '100%',
-              maxWidth: '440px',
+              maxWidth: '450px',
               background: '#ffffff',
-              border: '3px solid #161310',
-              boxShadow: '8px 8px 0 #161310',
-              padding: '12px',
+              borderRadius: '24px',
+              boxShadow: '0 20px 45px rgba(24, 50, 75, 0.18)',
+              padding: '16px',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <strong style={{ fontFamily: 'var(--font-display)', fontSize: '18px' }}>
-                DR. TOOTH AI
-              </strong>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '10px',
+              }}
+            >
+              <strong style={{ fontSize: '1.1rem' }}>🦷 Ask Dr. Tooth AI</strong>
               <button
-                className="bb-pixel-btn"
-                style={{ padding: '4px 10px' }}
+                className="bb-btn bb-btn--quiet"
+                style={{ padding: '6px 12px' }}
                 onClick={() => setChatOpen(false)}
               >
-                X
+                ✕
               </button>
             </div>
             <DentalAIChat />
@@ -147,7 +152,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar (Hidden on >= 768px) */}
+      {/* Mobile Bottom Navigation */}
       <nav className="bb-mobile-bottom-nav">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -157,22 +162,20 @@ export default function App() {
               key={item.id}
               onClick={() => navigateToTab(item.id)}
               style={{
-                background: isActive ? '#1d4ed8' : 'transparent',
-                color: isActive ? '#ffffff' : '#161310',
-                border: isActive ? '2px solid #161310' : '2px solid transparent',
-                boxShadow: isActive ? '2px 2px 0 #161310' : 'none',
-                padding: '6px 2px',
+                background: 'transparent',
+                color: isActive ? '#0d9488' : '#60758a',
+                border: 'none',
+                padding: '4px 2px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '2px',
+                gap: '3px',
                 cursor: 'pointer',
-                fontFamily: 'var(--font-hud)',
-                fontSize: '15px',
-                textTransform: 'uppercase',
+                fontWeight: isActive ? 900 : 700,
+                fontSize: '0.75rem',
               }}
             >
-              <Icon size={18} />
+              <Icon size={20} />
               <span>{item.label}</span>
             </button>
           );
