@@ -1,63 +1,116 @@
 import React, { useContext } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
-import { Star } from 'lucide-react';
+import { Star, Flame } from 'lucide-react';
 
-export default function Navbar() {
-  const { profile } = useContext(ProfileContext);
+export default function Navbar({ activeTab, onNavigate, navItems = [] }) {
+  const context = useContext(ProfileContext);
+  const profile = context?.profile;
 
-  // Safe fallback values to prevent reading from null
   const avatarEmoji = profile?.avatar_emoji || '🦷';
-  const starsCount = profile?.stars ?? 0;
+  const starsCount = profile?.stars ?? 10;
+  const streakCount = profile?.streak ?? 0;
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '12px 16px',
-      background: '#ffffff',
-      borderRadius: '20px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-      marginBottom: '16px'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          background: '#e0f2fe',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.5rem'
-        }}>
+    <header className="bb-navbar">
+      {/* Brand Identity */}
+      <div
+        onClick={() => onNavigate && onNavigate('home')}
+        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+      >
+        <div
+          style={{
+            width: '42px',
+            height: '42px',
+            background: '#e0f2fe',
+            border: '2px solid #161310',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.45rem',
+          }}
+        >
           {avatarEmoji}
         </div>
         <div>
-          <div style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>
-            SMILE HERO
+          <div
+            style={{
+              fontFamily: 'var(--font-hud)',
+              fontSize: '14px',
+              letterSpacing: '0.08em',
+              color: '#0284c7',
+              lineHeight: 1,
+            }}
+          >
+            DENTAL QUEST v2
           </div>
-          <div style={{ fontSize: '15px', fontWeight: '900', color: '#1e293b' }}>
-            Smile Hero
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '22px',
+              fontWeight: '700',
+              color: '#161310',
+              lineHeight: 1.1,
+            }}
+          >
+            BrushBuddy
           </div>
         </div>
       </div>
 
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        background: '#fef3c7',
-        border: '2px solid #fde047',
-        padding: '6px 12px',
-        borderRadius: '99px',
-        fontWeight: '900',
-        fontSize: '13px',
-        color: '#b45309'
-      }}>
-        <Star size={16} fill="#f59e0b" color="#f59e0b" />
-        <span>{starsCount}</span>
+      {/* Desktop / Tablet Top Navigation */}
+      <nav className="bb-desktop-nav" aria-label="Main Navigation">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`bb-nav-pill ${isActive ? 'bb-nav-pill--active' : ''}`}
+            >
+              <Icon size={16} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Streak & Star Counters */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            background: '#e0f2fe',
+            border: '2px solid #161310',
+            padding: '5px 9px',
+            fontFamily: 'var(--font-hud)',
+            fontSize: '17px',
+            color: '#1d4ed8',
+          }}
+        >
+          <Flame size={15} fill="#0284c7" color="#0284c7" />
+          <span>{streakCount}D</span>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            background: '#fef08a',
+            border: '2px solid #161310',
+            padding: '5px 11px',
+            fontFamily: 'var(--font-hud)',
+            fontSize: '18px',
+            color: '#161310',
+          }}
+        >
+          <Star size={15} fill="#eab308" color="#161310" />
+          <span>{starsCount}</span>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

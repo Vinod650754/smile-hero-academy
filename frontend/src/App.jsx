@@ -1,200 +1,183 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import HomeHub from './components/HomeHub';
 import BrushTimer from './components/BrushTimer';
 import GamesZone from './components/GamesZone';
 import HabitCalendar from './components/HabitCalendar';
 import BadgeShelf from './components/BadgeShelf';
 import DentalAIChat from './components/DentalAIChat';
-
-import { Sparkles, Gamepad2, Calendar, Award, Bot } from 'lucide-react';
+import Loader from './components/Loader';
+import { Home, Sparkles, Gamepad2, Calendar, Award, MessageCircle } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('brush');
-  const [showAIChat, setShowAIChat] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loaderText, setLoaderText] = useState('LOADING BRUSHBUDDY...');
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const navigateToTab = (tab, gameKey = null, customLabel = null) => {
+    setLoaderText(customLabel || `LOADING ${tab.toUpperCase()}...`);
+    setIsLoading(true);
+    setTimeout(() => {
+      setSelectedGame(gameKey);
+      setActiveTab(tab);
+      setIsLoading(false);
+    }, 600);
+  };
+
+  const navItems = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'brush', label: 'Brush', icon: Sparkles },
+    { id: 'games', label: 'Arcade', icon: Gamepad2 },
+    { id: 'streak', label: 'Streak', icon: Calendar },
+    { id: 'badges', label: 'Badges', icon: Award },
+  ];
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #e0f2fe 0%, #fef3c7 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '16px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
-      {/* Container Frame */}
-      <div style={{
-        width: '100%',
-        maxWidth: '430px',
-        height: '820px',
-        maxHeight: '94vh',
-        background: '#ffffff',
-        borderRadius: '32px',
-        boxShadow: '0 20px 40px rgba(2, 132, 199, 0.15)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative',
-        border: '4px solid #ffffff'
-      }}>
-        
-        {/* Header Navbar */}
-        <div style={{ padding: '16px 16px 0 16px', flexShrink: 0 }}>
-          <Navbar />
-        </div>
+    <div className="bb-app-shell">
+      {isLoading && <Loader label={loaderText} />}
 
-        {/* Scrollable Body */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '0 16px 85px 16px',
-          scrollbarWidth: 'none'
-        }}>
-          {activeTab === 'brush' && <BrushTimer />}
-          {activeTab === 'arcade' && <GamesZone />}
-          {activeTab === 'streak' && <HabitCalendar />}
-          {activeTab === 'badges' && <BadgeShelf />}
-        </div>
+      <Navbar activeTab={activeTab} onNavigate={navigateToTab} navItems={navItems} />
 
-        {/* Floating Dr. Tooth AI Button */}
-        <button
-          onClick={() => setShowAIChat(prev => !prev)}
-          style={{
-            position: 'absolute',
-            bottom: '76px',
-            right: '20px',
-            background: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)',
-            color: '#ffffff',
-            border: '2px solid #ffffff',
-            borderRadius: '99px',
-            padding: '8px 16px',
-            fontWeight: '900',
-            fontSize: '11px',
-            boxShadow: '0 8px 16px rgba(2, 132, 199, 0.35)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            zIndex: 40
-          }}
-        >
-          <Bot size={16} /> Dr. Tooth AI
-        </button>
+      <main>
+        {activeTab === 'home' && (
+          <HomeHub
+            onOpenBrushTab={() => navigateToTab('brush', null, 'PREPARING BRUSH GUIDE...')}
+            onOpenBadgesTab={() => navigateToTab('badges', null, 'OPENING TROPHY SHELF...')}
+            onOpenArcadeTab={() => navigateToTab('games', null, 'ENTERING ARCADE...')}
+            onLaunchGame={(gameKey) =>
+              navigateToTab('games', gameKey, 'LOADING MINI-QUEST...')
+            }
+          />
+        )}
 
-        {/* AI Assistant Overlay */}
-        {showAIChat && (
-          <div style={{
-            position: 'absolute',
-            bottom: '70px',
-            left: '12px',
-            right: '12px',
-            maxHeight: '380px',
-            zIndex: 50,
-            boxShadow: '0 -10px 30px rgba(0,0,0,0.2)',
-            borderRadius: '24px',
-            overflow: 'hidden'
-          }}>
-            <DentalAIChat onClose={() => setShowAIChat(false)} />
+        {activeTab === 'brush' && (
+          <div style={{ maxWidth: '540px', margin: '0 auto' }}>
+            <BrushTimer />
           </div>
         )}
 
-        {/* Permanent Bottom Tab Navigation */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '68px',
-          background: '#ffffff',
-          borderTop: '2px solid #f1f5f9',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+        {activeTab === 'games' && (
+          <GamesZone
+            initialGame={selectedGame}
+            onClearInitialGame={() => setSelectedGame(null)}
+          />
+        )}
+
+        {activeTab === 'streak' && (
+          <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+            <HabitCalendar />
+          </div>
+        )}
+
+        {activeTab === 'badges' && (
+          <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+            <BadgeShelf />
+          </div>
+        )}
+      </main>
+
+      {/* Floating Dr. Tooth AI Button */}
+      <button
+        onClick={() => setChatOpen(!chatOpen)}
+        aria-label="Ask Dr. Tooth AI"
+        style={{
+          position: 'fixed',
+          bottom: '80px',
+          right: '20px',
+          width: '50px',
+          height: '50px',
+          background: '#0ea5e9',
+          color: '#ffffff',
+          border: '2px solid #161310',
+          boxShadow: '4px 4px 0 #161310',
+          display: 'flex',
           alignItems: 'center',
-          padding: '0 8px',
-          zIndex: 30
-        }}>
-          <button
-            onClick={() => setActiveTab('brush')}
-            style={{
-              background: activeTab === 'brush' ? '#e0f2fe' : 'transparent',
-              border: 'none',
-              borderRadius: '16px',
-              padding: '8px 4px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '3px',
-              cursor: 'pointer'
-            }}
-          >
-            <Sparkles size={18} color={activeTab === 'brush' ? '#0284c7' : '#94a3b8'} />
-            <span style={{ fontSize: '10px', fontWeight: '800', color: activeTab === 'brush' ? '#0284c7' : '#64748b' }}>
-              Brush
-            </span>
-          </button>
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 50,
+        }}
+      >
+        <MessageCircle size={22} />
+      </button>
 
-          <button
-            onClick={() => setActiveTab('arcade')}
+      {chatOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(22, 19, 16, 0.5)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+          }}
+        >
+          <div
             style={{
-              background: activeTab === 'arcade' ? '#e0f2fe' : 'transparent',
-              border: 'none',
-              borderRadius: '16px',
-              padding: '8px 4px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '3px',
-              cursor: 'pointer'
+              width: '100%',
+              maxWidth: '440px',
+              background: '#ffffff',
+              border: '3px solid #161310',
+              boxShadow: '8px 8px 0 #161310',
+              padding: '12px',
             }}
           >
-            <Gamepad2 size={18} color={activeTab === 'arcade' ? '#0284c7' : '#94a3b8'} />
-            <span style={{ fontSize: '10px', fontWeight: '800', color: activeTab === 'arcade' ? '#0284c7' : '#64748b' }}>
-              Arcade
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('streak')}
-            style={{
-              background: activeTab === 'streak' ? '#e0f2fe' : 'transparent',
-              border: 'none',
-              borderRadius: '16px',
-              padding: '8px 4px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '3px',
-              cursor: 'pointer'
-            }}
-          >
-            <Calendar size={18} color={activeTab === 'streak' ? '#0284c7' : '#94a3b8'} />
-            <span style={{ fontSize: '10px', fontWeight: '800', color: activeTab === 'streak' ? '#0284c7' : '#64748b' }}>
-              Streak
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('badges')}
-            style={{
-              background: activeTab === 'badges' ? '#e0f2fe' : 'transparent',
-              border: 'none',
-              borderRadius: '16px',
-              padding: '8px 4px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '3px',
-              cursor: 'pointer'
-            }}
-          >
-            <Award size={18} color={activeTab === 'badges' ? '#0284c7' : '#94a3b8'} />
-            <span style={{ fontSize: '10px', fontWeight: '800', color: activeTab === 'badges' ? '#0284c7' : '#64748b' }}>
-              Badges
-            </span>
-          </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <strong style={{ fontFamily: 'var(--font-display)', fontSize: '18px' }}>
+                DR. TOOTH AI
+              </strong>
+              <button
+                className="bb-pixel-btn"
+                style={{ padding: '4px 10px' }}
+                onClick={() => setChatOpen(false)}
+              >
+                X
+              </button>
+            </div>
+            <DentalAIChat />
+          </div>
         </div>
+      )}
 
-      </div>
+      {/* Mobile Bottom Navigation Bar (Hidden on >= 768px) */}
+      <nav className="bb-mobile-bottom-nav">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => navigateToTab(item.id)}
+              style={{
+                background: isActive ? '#1d4ed8' : 'transparent',
+                color: isActive ? '#ffffff' : '#161310',
+                border: isActive ? '2px solid #161310' : '2px solid transparent',
+                boxShadow: isActive ? '2px 2px 0 #161310' : 'none',
+                padding: '6px 2px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '2px',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-hud)',
+                fontSize: '15px',
+                textTransform: 'uppercase',
+              }}
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
