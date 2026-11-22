@@ -7,14 +7,13 @@ import HabitCalendar from './components/HabitCalendar';
 import BadgeShelf from './components/BadgeShelf';
 import DentalAIChat from './components/DentalAIChat';
 import Loader from './components/Loader';
-import { Home, Sparkles, Gamepad2, Calendar, Award, MessageCircle } from 'lucide-react';
+import { Home, Sparkles, Gamepad2, Calendar, Award } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedGame, setSelectedGame] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loaderText, setLoaderText] = useState('Loading BrushBuddy...');
-  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 950);
@@ -81,76 +80,8 @@ export default function App() {
         )}
       </main>
 
-      {/* Floating Dr. Tooth AI Button */}
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        aria-label="Ask Dr. Tooth AI"
-        style={{
-          position: 'fixed',
-          bottom: '82px',
-          right: '22px',
-          width: '54px',
-          height: '54px',
-          borderRadius: '50%',
-          background: '#0d9488',
-          color: '#ffffff',
-          border: 'none',
-          boxShadow: '0 8px 22px rgba(13, 148, 136, 0.35)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          zIndex: 50,
-        }}
-      >
-        <MessageCircle size={24} />
-      </button>
-
-      {chatOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(24, 50, 75, 0.4)',
-            backdropFilter: 'blur(3px)',
-            zIndex: 100,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '450px',
-              background: '#ffffff',
-              borderRadius: '24px',
-              boxShadow: '0 20px 45px rgba(24, 50, 75, 0.18)',
-              padding: '16px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '10px',
-              }}
-            >
-              <strong style={{ fontSize: '1.1rem' }}>🦷 Ask Dr. Tooth AI</strong>
-              <button
-                className="bb-btn bb-btn--quiet"
-                style={{ padding: '6px 12px' }}
-                onClick={() => setChatOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <DentalAIChat />
-          </div>
-        </div>
-      )}
+      {/* Single-Click Floating Dr. Tooth AI Widget */}
+      <DentalAIChat />
 
       {/* Mobile Bottom Navigation */}
       <nav className="bb-mobile-bottom-nav">
