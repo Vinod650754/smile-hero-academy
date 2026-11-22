@@ -15,79 +15,81 @@ export default function HomeHub({
   onLaunchGame,
 }) {
   const context = useContext(ProfileContext);
-  const profile = context?.profile;
-  const streak = profile?.streak ?? 0;
+  const profile = context?.profile || {};
   const [tipIndex, setTipIndex] = useState(0);
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const brushedToday = profile?.last_brushed_date === todayStr;
-  const completedCount = (brushedToday ? 1 : 0) + (streak > 0 ? 1 : 0);
-  const progressPercent = Math.min(100, Math.round((completedCount / 3) * 100));
+  const brushedToday = profile.last_brushed_date === todayStr;
+  const playedGame = (profile.games_played || []).length > 0;
+  const hasQuiz = (profile.quiz_high_score || 0) >= 4;
+
+  const completedCount = (brushedToday ? 1 : 0) + (playedGame ? 1 : 0) + (hasQuiz ? 1 : 0);
+  const progressPercent = Math.round((completedCount / 3) * 100);
 
   const missions = [
     {
       id: 'brush-battle',
       icon: '🪥',
       iconBg: '#dff8ef',
-      kicker: 'MISSION 01',
-      title: 'Brush Battle',
-      desc: 'Follow a two-minute timer and learn to clean every tooth surface gently.',
+      kicker: 'MISSION 01 • +25 STARS',
+      title: '2-Minute Brush Battle',
+      desc: 'Follow our guided 4-zone animation for two minutes to clean every tooth surface gently.',
       btnText: 'Start brushing',
       btnClass: 'bb-btn bb-btn--primary',
       onClick: onOpenBrushTab,
     },
     {
+      id: 'tooth-dash',
+      icon: '🏃',
+      iconBg: '#e6f6ff',
+      kicker: 'MISSION 02 • RUNNER',
+      title: 'Tooth Dash',
+      desc: 'Race through Smile City! Tap Left, Right, or Jump to dodge sticky sweets and collect toothbrushes.',
+      btnText: 'Play Tooth Dash',
+      btnClass: 'bb-btn bb-btn--gold',
+      onClick: () => onLaunchGame('ToothDash'),
+    },
+    {
       id: 'defeat-sugar-bugs',
       icon: '🦠',
       iconBg: '#fff1d4',
-      kicker: 'MISSION 02',
-      title: 'Defeat Sugar Bugs',
-      desc: 'Answer quick questions about plaque, sugar, fluoride, and healthy habits.',
+      kicker: 'MISSION 03 • QUIZ',
+      title: 'Sugar Bug Quiz',
+      desc: 'Answer 5 quick questions about plaque, fluoride, and healthy snacks to defeat cavity monsters.',
       btnText: 'Play the quiz',
-      btnClass: 'bb-btn bb-btn--gold',
+      btnClass: 'bb-btn bb-btn--secondary',
       onClick: () => onLaunchGame('SugarBugQuiz'),
     },
     {
-      id: 'smile-champion',
-      icon: '🏅',
-      iconBg: '#eee8ff',
-      kicker: 'MISSION 03',
-      title: 'Smile Champion',
-      desc: "Check your achievements and celebrate the oral-health skills you've practised.",
-      btnText: 'View rewards',
-      btnClass: 'bb-btn bb-btn--secondary',
-      onClick: onOpenBadgesTab,
-    },
-    {
-      id: 'sugar-bug-zap',
-      icon: '👾',
-      iconBg: '#ffe9e9',
-      kicker: 'ARCADE FAVORITE',
-      title: 'Sugar Bug Zap',
-      desc: 'Zap cavity bugs fast before they reach your pearly white molars!',
-      btnText: 'Zap sugar bugs',
-      btnClass: 'bb-btn bb-btn--primary',
-      onClick: () => onLaunchGame('SugarBugZap'),
-    },
-    {
-      id: 'word-scramble',
-      icon: '🔤',
+      id: 'floss-runner',
+      icon: '🧵',
       iconBg: '#dff8ef',
-      kicker: 'WORD CHALLENGE',
-      title: 'Word Scramble',
-      desc: 'Unscramble secret dental tools and healthy smile power-ups.',
-      btnText: 'Play scramble',
+      kicker: 'SKILL ARCADE',
+      title: 'Floss Runner',
+      desc: 'Guide the super-floss ribbon smoothly between teeth to clear hidden plaque and build combos!',
+      btnText: 'Play Floss Runner',
+      btnClass: 'bb-btn bb-btn--primary',
+      onClick: () => onLaunchGame('FlossRunner'),
+    },
+    {
+      id: 'enamel-defender',
+      icon: '🛡️',
+      iconBg: '#eee8ff',
+      kicker: 'SHIELD DEFENSE',
+      title: 'Enamel Defender',
+      desc: 'Aim your glowing fluoride shield to block incoming sugar-acid waves and protect your smile!',
+      btnText: 'Defend Enamel',
       btnClass: 'bb-btn bb-btn--gold',
-      onClick: () => onLaunchGame('WordScramble'),
+      onClick: () => onLaunchGame('EnamelDefender'),
     },
     {
       id: 'play-and-learn',
       icon: '🎮',
       iconBg: '#e6f6ff',
       kicker: 'FUN GAMES ZONE',
-      title: 'Play & Learn',
-      desc: 'Explore all 13 quick games about food, teeth, gums, and oral-health myths.',
-      btnText: 'Explore games',
+      title: 'All 9 Smile Games',
+      desc: 'Explore Plaque Pattern, Sugar Bug Zap, Smile Sort, Word Scramble, Memory Match, and more!',
+      btnText: 'Explore all games',
       btnClass: 'bb-btn bb-btn--secondary',
       onClick: onOpenArcadeTab,
     },
@@ -105,8 +107,8 @@ export default function HomeHub({
             your smile?
           </h1>
           <p>
-            Learn to brush, beat the sugar bugs, and become a Smile Champion. Every little
-            mission makes your smile stronger!
+            Learn to brush, beat the sugar bugs, and build a daily streak to become a Smile
+            Champion. Every mission makes your smile stronger!
           </p>
           <div className="bb-hero-actions">
             <button className="bb-btn bb-btn--primary" onClick={onOpenBrushTab}>
@@ -118,7 +120,7 @@ export default function HomeHub({
           </div>
         </div>
 
-        {/* Clean Molar Tooth Hero SVG (No random man emoji!) */}
+        {/* Smiling Molar Tooth Mascot */}
         <div
           className="bb-hero-art"
           onClick={() => setTipIndex((i) => (i + 1) % TIPS.length)}
@@ -135,10 +137,7 @@ export default function HomeHub({
               xmlns="http://www.w3.org/2000/svg"
               aria-label="Hero Tooth Mascot"
             >
-              {/* Soft Mint Shadow Base */}
               <ellipse cx="100" cy="198" rx="56" ry="11" fill="#b9e8df" />
-
-              {/* Flowing Superhero Cape Behind Tooth */}
               <path
                 d="M42 78 L14 166 Q65 152 100 162 Q135 152 186 166 L158 78 Z"
                 fill="#0d9488"
@@ -146,8 +145,6 @@ export default function HomeHub({
                 strokeWidth="3"
                 strokeLinejoin="round"
               />
-
-              {/* Cute Molar Tooth Shape with Two Roots */}
               <path
                 d="M52 28 C30 28 22 50 28 82 C33 110 42 138 48 176 C50 188 67 189 73 172 L88 130 C93 120 107 120 112 130 L127 172 C133 189 150 188 152 176 C158 138 167 110 172 82 C178 50 170 28 148 28 C127 28 114 40 100 40 C86 40 73 28 52 28 Z"
                 fill="#ffffff"
@@ -155,26 +152,18 @@ export default function HomeHub({
                 strokeWidth="6"
                 strokeLinejoin="round"
               />
-
-              {/* Glossy Enamel Highlight */}
               <path
                 d="M46 46 C49 38 60 36 68 39"
                 stroke="#b9e8df"
                 strokeWidth="5"
                 strokeLinecap="round"
               />
-
-              {/* Eyes */}
               <ellipse cx="76" cy="82" rx="6.5" ry="9" fill="#18324b" />
               <ellipse cx="124" cy="82" rx="6.5" ry="9" fill="#18324b" />
               <circle cx="78" cy="79" r="2.2" fill="#ffffff" />
               <circle cx="126" cy="79" r="2.2" fill="#ffffff" />
-
-              {/* Rosy Cheeks */}
               <ellipse cx="60" cy="95" rx="8" ry="5" fill="#ffd6dc" />
               <ellipse cx="140" cy="95" rx="8" ry="5" fill="#ffd6dc" />
-
-              {/* Happy Smile */}
               <path
                 d="M82 100 Q100 118 118 100"
                 stroke="#ff7b7b"
@@ -203,7 +192,7 @@ export default function HomeHub({
         </div>
       </section>
 
-      {/* Progress Bar */}
+      {/* Real Progress Bar */}
       <div className="bb-progress-wrap">
         <div
           style={{
@@ -213,9 +202,9 @@ export default function HomeHub({
             alignItems: 'center',
           }}
         >
-          <strong>🏆 Your hero progress</strong>
+          <strong>🏆 Today’s hero progress</strong>
           <span style={{ color: '#60758a', fontWeight: 700, fontSize: '0.92rem' }}>
-            {completedCount} of 3 missions complete
+            {completedCount} of 3 daily goals complete
           </span>
         </div>
         <div className="bb-progress-line">
@@ -227,7 +216,7 @@ export default function HomeHub({
       <div className="bb-section-head">
         <div>
           <h2>Choose your mission</h2>
-          <p>Play in any order. Collect stars as you learn.</p>
+          <p>Play in any order. Collect stars and streak trophies as you learn.</p>
         </div>
       </div>
 

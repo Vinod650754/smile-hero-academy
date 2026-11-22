@@ -1,92 +1,237 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
-import { Flame, CheckCircle, Calendar as CalendarIcon, Star } from 'lucide-react';
 
 export default function HabitCalendar() {
-  const { profile } = useContext(ProfileContext);
-  const streak = profile?.streak || 0;
-  const stars = profile?.stars || 0;
-  const lastBrushed = profile?.last_brushed_date;
+  const context = useContext(ProfileContext);
+  const profile = context?.profile || {};
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const brushedToday = lastBrushed === todayStr;
+  const currentStreak = profile.streak || 0;
+  const longestStreak = profile.longest_streak || 0;
+  const totalBrushes = profile.total_brushes || 0;
+  const brushedSet = new Set(profile.brushed_dates || []);
 
-  // Generate last 7 days visual calendar bar
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dateStr = d.toISOString().split('T')[0];
-    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
-    const isDone = lastBrushed >= dateStr;
+  const now = new Date();
+  const [viewYear, setViewYear] = useState(now.getFullYear());
+  const [viewMonth, setViewMonth] = useState(now.getMonth());
 
-    return { dayName, dateStr, isDone };
-  });
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+
+  const firstDayWeekday = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const todayStr = now.toISOString().split('T')[0];
+
+  const prevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else {
+      setViewMonth((m) => m - 1);
+    }
+  };
+
+  const nextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else {
+      setViewMonth((m) => m + 1);
+    }
+  };
+
+  // Next streak milestone helper
+  const nextMilestone =
+    currentStreak < 3 ? 3 : currentStreak < 10 ? 10 : currentStreak < 50 ? 50 : 100;
+  const daysToNext = Math.max(0, nextMilestone - currentStreak);
+
+  const cells = [];
+  for (let i = 0; i < firstDayWeekday; i++) {
+    cells.push(null);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const mm = String(viewMonth + 1).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    cells.push({ day: d, dateStr: `${viewYear}-${mm}-${dd}` });
+  }
 
   return (
-    <div className="bubbly-card" style={{ padding: '16px' }}>
-      {/* Top Banner */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '18px', fontWeight: '900', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            Daily Habit Streak <Flame size={22} className="text-amber-500 fill-amber-500" />
+    <div>
+      <div className="bb-eyebrow">Daily Habit Tracker</div>
+      <h2 style={{ margin: '6px 0 6px' }}>🔥 Your Brushing Streak</h2>
+      <p style={{ color: '#60758a', lineHeight: 1.55, margin: '0 0 20px' }}>
+        Every day you complete your 2-minute Brush Battle, your streak grows and lights up on
+        your Smile Calendar!
+      </p>
+
+      {/* Real Stats Summary Row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '12px',
+          marginBottom: '20px',
+        }}
+      >
+        <div
+          style={{
+            background: '#dff8ef',
+            borderRadius: '20px',
+            padding: '16px 12px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: '1.6rem' }}>🔥</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0b8178' }}>
+            {currentStreak}
           </div>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', marginTop: '2px' }}>
-            Brush twice daily to keep your flame alive!
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#18324b' }}>
+            Current Streak
           </div>
         </div>
 
-        <div style={{ background: '#fef3c7', border: '2px solid #f59e0b', padding: '6px 12px', borderRadius: '14px', textAlign: 'center' }}>
-          <div style={{ fontSize: '16px', fontWeight: '900', color: '#b45309' }}>🔥 {streak} Days</div>
-          <div style={{ fontSize: '9px', fontWeight: '800', color: '#d97706' }}>STREAK</div>
+        <div
+          style={{
+            background: '#fff4d4',
+            borderRadius: '20px',
+            padding: '16px 12px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: '1.6rem' }}>👑</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#b45309' }}>
+            {longestStreak}
+          </div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#18324b' }}>
+            Longest Streak
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: '#e6f6ff',
+            borderRadius: '20px',
+            padding: '16px 12px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: '1.6rem' }}>🪥</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#18324b' }}>
+            {totalBrushes}
+          </div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#18324b' }}>
+            Total Sessions
+          </div>
         </div>
       </div>
 
-      {/* 7-Day Visual Progress Bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '16px' }}>
-        {days.map((item, idx) => (
-          <div
-            key={idx}
-            style={{
-              background: item.isDone ? '#dcfce7' : '#f1f5f9',
-              border: item.isDone ? '2px solid #22c55e' : '2px solid #cbd5e1',
-              borderRadius: '14px',
-              padding: '10px 4px',
-              textAlign: 'center',
-              transition: 'transform 0.2s ease'
-            }}
+      {/* Milestone Progress Banner */}
+      <div
+        style={{
+          background: '#f5fbff',
+          border: '1px solid #d9ecf8',
+          borderRadius: '16px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}
+      >
+        <span style={{ fontWeight: 800, fontSize: '0.92rem' }}>
+          🎯 Next Trophy: <strong>{nextMilestone}-Day Streak Badge</strong>
+        </span>
+        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0d9488' }}>
+          {daysToNext === 0
+            ? 'Unlocked!'
+            : `${daysToNext} more ${daysToNext === 1 ? 'day' : 'days'} to go!`}
+        </span>
+      </div>
+
+      {/* Monthly Calendar */}
+      <div
+        style={{
+          background: '#f8fcff',
+          border: '1px solid #e3edf5',
+          borderRadius: '22px',
+          padding: '16px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '14px',
+          }}
+        >
+          <button
+            className="bb-btn bb-btn--quiet"
+            style={{ padding: '6px 12px' }}
+            onClick={prevMonth}
           >
-            <div style={{ fontSize: '10px', fontWeight: '800', color: '#64748b' }}>{item.dayName}</div>
-            <div style={{ fontSize: '1.4rem', marginTop: '4px' }}>
-              {item.isDone ? '🪥' : '⚪'}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Daily Status Banner */}
-      <div style={{
-        background: brushedToday ? '#f0fdf4' : '#f0f9ff',
-        border: `2px solid ${brushedToday ? '#86efac' : '#bae6fd'}`,
-        borderRadius: '16px',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {brushedToday ? <CheckCircle size={22} color="#16a34a" /> : <CalendarIcon size={22} color="#0284c7" />}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: '900', color: '#1e293b' }}>
-              {brushedToday ? 'Brushing Complete Today!' : 'Ready for Today’s Brush?'}
-            </div>
-            <div style={{ fontSize: '10px', fontWeight: '700', color: '#64748b' }}>
-              {brushedToday ? 'Great job! Come back tonight for your next session.' : 'Use the 2-minute timer to extend your streak!'}
-            </div>
-          </div>
+            ←
+          </button>
+          <strong style={{ fontSize: '1.05rem' }}>
+            {monthNames[viewMonth]} {viewYear}
+          </strong>
+          <button
+            className="bb-btn bb-btn--quiet"
+            style={{ padding: '6px 12px' }}
+            onClick={nextMonth}
+          >
+            →
+          </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '900', color: '#0284c7', fontSize: '13px' }}>
-          <Star size={16} fill="#0284c7" /> {stars}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, 1fr)',
+            gap: '6px',
+            textAlign: 'center',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            color: '#60758a',
+            marginBottom: '8px',
+          }}
+        >
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+            <div key={d}>{d}</div>
+          ))}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
+          {cells.map((cell, idx) => {
+            if (!cell) return <div key={`empty-${idx}`} />;
+            const isBrushed = brushedSet.has(cell.dateStr);
+            const isToday = cell.dateStr === todayStr;
+
+            return (
+              <div
+                key={cell.dateStr}
+                style={{
+                  aspectRatio: '1',
+                  borderRadius: '14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.88rem',
+                  fontWeight: 800,
+                  background: isBrushed ? '#0d9488' : isToday ? '#fff4d4' : '#ffffff',
+                  color: isBrushed ? '#ffffff' : '#18324b',
+                  border: isToday ? '2px solid #ffd166' : '1px solid #e5eef5',
+                }}
+              >
+                <span>{cell.day}</span>
+                {isBrushed && <span style={{ fontSize: '0.72rem', lineHeight: 1 }}>🦷</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

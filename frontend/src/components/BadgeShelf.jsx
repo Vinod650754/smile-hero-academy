@@ -1,79 +1,178 @@
 import React, { useContext } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
-import { Trophy, Shield, Lock, Award, Star } from 'lucide-react';
-
-const BADGE_DEFINITIONS = [
-  { id: 'First Smile', name: 'First Smile', emoji: '🌟', desc: 'Started your journey at Smile Hero Academy!' },
-  { id: 'Master Brusher', name: 'Master Brusher', emoji: '🪥', desc: 'Completed a 2-minute brushing session.' },
-  { id: 'Sugar Bug Buster', name: 'Sugar Bug Buster', emoji: '🦠', desc: 'Answered trivia questions in Sugar Bug Quiz.' },
-  { id: 'Game Explorer', name: 'Game Explorer', emoji: '🎮', desc: 'Played & completed mini-games in the arcade.' },
-  { id: 'Enamel Defender', name: 'Enamel Defender', emoji: '🛡️', desc: 'Maintained a 3-day brushing streak.' },
-  { id: 'Superhero Tooth', name: 'Superhero Tooth', emoji: '🦸‍♂️', desc: 'Collected over 100 total stars!' }
-];
 
 export default function BadgeShelf() {
-  const { profile } = useContext(ProfileContext);
-  const unlockedBadges = profile?.unlocked_badges || ['First Smile'];
+  const context = useContext(ProfileContext);
+  const profile = context?.profile || {};
+
+  const stars = profile.stars || 0;
+  const totalBrushes = profile.total_brushes || 0;
+  const bestStreak = Math.max(profile.streak || 0, profile.longest_streak || 0);
+  const gamesPlayedCount = (profile.games_played || []).length;
+  const quizBest = profile.quiz_high_score || 0;
+
+  const badges = [
+    {
+      id: 'first-brush',
+      emoji: '🪥',
+      title: 'Brush Buddy',
+      desc: 'Complete your first full 2-minute brushing session.',
+      earned: totalBrushes >= 1,
+      progressLabel: `${Math.min(1, totalBrushes)} / 1 session`,
+    },
+    {
+      id: 'quiz-buster',
+      emoji: '🧠',
+      title: 'Sugar Bug Buster',
+      desc: 'Score 4 or more in the Sugar Bug Quiz challenge.',
+      earned: quizBest >= 4,
+      progressLabel: `${Math.min(4, quizBest)} / 4 score`,
+    },
+    {
+      id: 'arcade-explorer',
+      emoji: '🎮',
+      title: 'Arcade Explorer',
+      desc: 'Play and finish 3 different dental mini-games.',
+      earned: gamesPlayedCount >= 3,
+      progressLabel: `${Math.min(3, gamesPlayedCount)} / 3 games`,
+    },
+    {
+      id: 'star-collector',
+      emoji: '⭐',
+      title: 'Star Collector',
+      desc: 'Collect 100 stars across brushing missions and games.',
+      earned: stars >= 100,
+      progressLabel: `${Math.min(100, stars)} / 100 stars`,
+    },
+    {
+      id: 'streak-3',
+      emoji: '🔥',
+      title: '3-Day Spark',
+      desc: 'Keep your brushing habit alive for 3 days in a row.',
+      earned: bestStreak >= 3,
+      progressLabel: `${Math.min(3, bestStreak)} / 3 days`,
+    },
+    {
+      id: 'streak-10',
+      emoji: '🏅',
+      title: '10-Day Smile Hero',
+      desc: 'Brush every day for 10 consecutive days!',
+      earned: bestStreak >= 10,
+      progressLabel: `${Math.min(10, bestStreak)} / 10 days`,
+    },
+    {
+      id: 'streak-50',
+      emoji: '👑',
+      title: '50-Day Enamel Master',
+      desc: 'An extraordinary 50-day brushing streak!',
+      earned: bestStreak >= 50,
+      progressLabel: `${Math.min(50, bestStreak)} / 50 days`,
+    },
+    {
+      id: 'streak-100',
+      emoji: '🏆',
+      title: '100-Day Champion',
+      desc: 'Legendary status: 100 days of healthy smile care!',
+      earned: bestStreak >= 100,
+      progressLabel: `${Math.min(100, bestStreak)} / 100 days`,
+    },
+  ];
+
+  const unlockedCount = badges.filter((b) => b.earned).length;
 
   return (
-    <div className="bubbly-card" style={{ padding: '16px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-        <div style={{ fontSize: '18px', fontWeight: '900', color: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-          Superhero Badge Trophy Room <Trophy size={20} className="text-amber-500 fill-amber-500" />
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px',
+          marginBottom: '6px',
+        }}
+      >
+        <div>
+          <div className="bb-eyebrow">Your Trophy Shelf</div>
+          <h2 style={{ margin: '6px 0' }}>🏆 Smile Hero Rewards</h2>
         </div>
-        <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', marginTop: '2px' }}>
-          Unlocked {unlockedBadges.length} of {BADGE_DEFINITIONS.length} Achievement Trophies!
+        <div className="bb-score-pill">
+          🏅 {unlockedCount} of {badges.length} Unlocked
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-        {BADGE_DEFINITIONS.map(badge => {
-          const isUnlocked = unlockedBadges.includes(badge.id);
+      <p style={{ color: '#60758a', lineHeight: 1.55, margin: '0 0 20px' }}>
+        Every brushing session and mini-game brings you closer to new streak trophies and
+        Smile Champion badges!
+      </p>
 
-          return (
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+          gap: '14px',
+        }}
+      >
+        {badges.map((b) => (
+          <div
+            key={b.id}
+            style={{
+              background: b.earned ? '#fff8dc' : '#f6f9fc',
+              border: b.earned ? '2px solid #f4d36a' : '2px dashed #dbe6ef',
+              borderRadius: '20px',
+              padding: '18px 16px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              opacity: b.earned ? 1 : 0.85,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '2.5rem', marginBottom: '6px' }}>
+                {b.earned ? b.emoji : '🔒'}
+              </div>
+              <strong style={{ display: 'block', fontSize: '1.05rem', marginBottom: '4px' }}>
+                {b.title}
+              </strong>
+              <p style={{ fontSize: '0.86rem', color: '#60758a', margin: 0, lineHeight: 1.45 }}>
+                {b.desc}
+              </p>
+            </div>
+
             <div
-              key={badge.id}
               style={{
-                background: isUnlocked ? 'linear-gradient(180deg, #fff8dc 0%, #ffffff 100%)' : '#f8fafc',
-                border: isUnlocked ? '3px solid #fbbf24' : '2px dashed #cbd5e1',
-                borderRadius: '18px',
-                padding: '14px 10px',
-                textAlign: 'center',
-                position: 'relative',
-                boxShadow: isUnlocked ? '0 6px 14px rgba(251, 191, 36, 0.2)' : 'none',
-                opacity: isUnlocked ? 1 : 0.6
+                marginTop: '8px',
+                padding: '5px 10px',
+                borderRadius: '99px',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                background: b.earned ? '#0d9488' : '#e6eef5',
+                color: b.earned ? '#ffffff' : '#60758a',
               }}
             >
-              <div style={{ fontSize: '2.5rem', marginBottom: '4px' }}>
-                {isUnlocked ? badge.emoji : '🔒'}
-              </div>
-
-              <div style={{ fontSize: '12px', fontWeight: '900', color: isUnlocked ? '#b45309' : '#64748b' }}>
-                {badge.name}
-              </div>
-
-              <div style={{ fontSize: '9px', fontWeight: '700', color: '#64748b', marginTop: '4px', minHeight: '24px' }}>
-                {badge.desc}
-              </div>
-
-              {isUnlocked && (
-                <div style={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  background: '#22c55e',
-                  color: 'white',
-                  borderRadius: '99px',
-                  padding: '2px 6px',
-                  fontSize: '8px',
-                  fontWeight: '900'
-                }}>
-                  UNLOCKED
-                </div>
-              )}
+              {b.earned ? '✓ UNLOCKED' : b.progressLabel}
             </div>
-          );
-        })}
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          marginTop: '24px',
+          background: 'linear-gradient(125deg, #e0f8f1, #e5f4ff)',
+          borderRadius: '20px',
+          padding: '18px',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#60758a' }}>
+          TOTAL STARS EARNED
+        </div>
+        <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#18324b', marginTop: '4px' }}>
+          ⭐ {stars} stars
+        </div>
       </div>
     </div>
   );
