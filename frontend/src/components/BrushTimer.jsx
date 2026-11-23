@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
 
-const DEFAULT_SECONDS = 150; // 2 minutes 30 seconds
+const BRUSH_SECONDS = 120; // Exact 2:00 (120 seconds)
+const START_OFFSET = 0.00001; // Tiny 250ms initial hold on 2:00 before ticking
 
 const ZONES = [
   {
@@ -34,57 +35,30 @@ export default function BrushTimer() {
   const context = useContext(ProfileContext);
   const recordBrushSession = context?.recordBrushSession;
 
-  const [totalSeconds, setTotalSeconds] = useState(DEFAULT_SECONDS);
-  const [secondsLeft, setSecondsLeft] = useState(DEFAULT_SECONDS);
+  const [secondsLeft, setSecondsLeft] = useState(BRUSH_SECONDS);
   const [isRunning, setIsRunning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [videoMissing, setVideoMissing] = useState(false);
 
   const videoRef = useRef(null);
+  const completedRef = useRef(false);
 
-  const elapsed = Math.max(0, totalSeconds - secondsLeft);
-  const zoneDuration = totalSeconds / 4;
+  const elapsed = Math.max(0, BRUSH_SECONDS - secondsLeft);
+  const zoneDuration = BRUSH_SECONDS / 4; // 30s per zone
   const zoneIndex = Math.min(3, Math.floor(elapsed / zoneDuration));
   const currentZone = ZONES[zoneIndex];
-  const progressPct = Math.min(100, Math.round((elapsed / totalSeconds) * 100));
+  const progressPct = Math.min(100, Math.round((elapsed / BRUSH_SECONDS) * 100));
 
   useEffect(() => {
-    if (!isRunning) return;
-
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsRunning(false);
-          setIsComplete(true);
-          if (videoRef.current) {
-            videoRef.current.pause();
-            videoRef.current.currentTime = 0;
-          }
-          if (typeof recordBrushSession === 'function') {
-            recordBrushSession(25);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, recordBrushSession]);
-
-  const handleLoadedMetadata = () => {
-    if (videoRef.current && videoRef.current.duration && !isNaN(videoRef.current.duration)) {
-      const exactDuration = Math.round(videoRef.current.duration);
-      if (exactDuration > 0 && !isRunning) {
-        setTotalSeconds(exactDuration);
-        setSecondsLeft(exactDuration);
-      }
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
     }
-  };
+  }, [isMuted]);
 
-  const handleVideoEnded = () => {
+  const completeMission = () => {
+    if (completedRef.current) return;
+    completedRef.current = true;
     setIsRunning(false);
     setIsComplete(true);
     setSecondsLeft(0);
@@ -97,15 +71,57 @@ export default function BrushTimer() {
     }
   };
 
-  const handleStart = () => {
-    if (secondsLeft === 0) {
-      setSecondsLeft(totalSeconds);
-      setIsComplete(false);
+  // Holds 2:00 for a tiny 250ms on start, then counts down smoothly
+  const handleTimeUpdate = () => {
+    if (!videoRef.current || !isRunning || completedRef.current) return;
+    const t = videoRef.current.currentTime;
+    if (t < START_OFFSET) return;
+
+    const remaining = Math.max(0, Math.ceil(BRUSH_SECONDS - (t - START_OFFSET)));
+    setSecondsLeft((prev) => (remaining <= prev ? remaining : prev));
+
+    if (remaining === 0) {
+      completeMission();
     }
+  };
+
+  // Fallback interval timer ONLY if the video file is missing
+  useEffect(() => {
+    if (!isRunning || !videoMissing) return;
+
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          completeMission();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRunning, videoMissing]);
+
+  const handleVideoEnded = () => {
+    completeMission();
+  };
+
+  const handleStart = () => {
+    if (secondsLeft === 0 || isComplete) {
+      completedRef.current = false;
+      setIsComplete(false);
+      setSecondsLeft(BRUSH_SECONDS);
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+      }
+    }
+
     setIsRunning(true);
+
     if (videoRef.current && !videoMissing) {
+      videoRef.current.muted = isMuted;
       videoRef.current.play().catch(() => {
-        // Fallback if browser blocks unmuted autoplay on first click
         if (videoRef.current) {
           videoRef.current.muted = true;
           setIsMuted(true);
@@ -123,20 +139,25 @@ export default function BrushTimer() {
   };
 
   const handleReset = () => {
+    completedRef.current = false;
     setIsRunning(false);
     setIsComplete(false);
-    setSecondsLeft(totalSeconds);
+    setSecondsLeft(BRUSH_SECONDS);
     if (videoRef.current && !videoMissing) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
   };
 
-  const toggleMute = () => {
+  const toggleMute = (e) => {
+    e.stopPropagation();
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     if (videoRef.current) {
       videoRef.current.muted = nextMuted;
+      if (!nextMuted && videoRef.current.volume === 0) {
+        videoRef.current.volume = 1;
+      }
     }
   };
 
@@ -148,8 +169,8 @@ export default function BrushTimer() {
       <div className="bb-eyebrow">Mission 01 • Guided 3D Brushing</div>
       <h2 style={{ margin: '6px 0 8px' }}>🪥 Guided Brush Battle</h2>
       <p style={{ color: '#60758a', lineHeight: 1.55, margin: '0 0 18px' }}>
-        Press <strong>Start Brushing</strong> to play your 3D brushing animation! Follow along
-        through all 4 mouth zones using gentle circular strokes.
+        Press <strong>Start Brushing</strong> to play your 2-minute 3D brushing guide! Follow
+        along through all 4 mouth zones using gentle circular strokes.
       </p>
 
       {/* Video Player or Synced 4-Quadrant Animated Fallback */}
@@ -171,7 +192,7 @@ export default function BrushTimer() {
               playsInline
               preload="metadata"
               muted={isMuted}
-              onLoadedMetadata={handleLoadedMetadata}
+              onTimeUpdate={handleTimeUpdate}
               onEnded={handleVideoEnded}
               onError={() => setVideoMissing(true)}
               style={{
@@ -183,25 +204,27 @@ export default function BrushTimer() {
               }}
             />
 
-            {/* Quick Mute/Unmute Pill */}
+            {/* Mute / Unmute Button */}
             <button
               type="button"
               onClick={toggleMute}
+              aria-label={isMuted ? 'Unmute video' : 'Mute video'}
               style={{
                 position: 'absolute',
                 top: '12px',
                 right: '12px',
-                background: 'rgba(24, 50, 75, 0.78)',
+                zIndex: 10,
+                background: 'rgba(24, 50, 75, 0.85)',
                 color: '#ffffff',
-                border: '1px solid rgba(255,255,255,0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.35)',
                 borderRadius: '99px',
-                padding: '6px 12px',
-                fontSize: '0.8rem',
+                padding: '7px 14px',
+                fontSize: '0.82rem',
                 fontWeight: 800,
                 cursor: 'pointer',
               }}
             >
-              {isMuted ? '🔇 Muted' : '🔊 Sound On'}
+              {isMuted ? '🔇 Unmute' : '🔊 Mute'}
             </button>
           </div>
         ) : (
@@ -309,7 +332,7 @@ export default function BrushTimer() {
         }}
       >
         {isComplete
-          ? '🏆 Amazing job! You finished your full brushing mission and earned +25 stars!'
+          ? '🏆 Amazing job! You finished your full 2-minute mission and earned +25 stars!'
           : `💡 ${currentZone.tip}`}
       </div>
 
@@ -317,7 +340,7 @@ export default function BrushTimer() {
       <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
         {!isRunning ? (
           <button className="bb-btn bb-btn--primary" onClick={handleStart}>
-            ▶ {secondsLeft < totalSeconds && secondsLeft > 0 ? 'Resume Brushing' : 'Start Brushing'}
+            ▶ {secondsLeft < BRUSH_SECONDS && secondsLeft > 0 ? 'Resume Brushing' : 'Start Brushing'}
           </button>
         ) : (
           <button className="bb-btn bb-btn--gold" onClick={handlePause}>
