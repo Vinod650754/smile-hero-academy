@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { ProfileContext } from '../context/ProfileContext';
 
 const BRUSH_SECONDS = 120; // Exact 2:00 (120 seconds)
-const START_OFFSET = 0.00001; // Tiny 250ms initial hold on 2:00 before ticking
+const START_OFFSET = 0.00001; // Instant cut to 1:59 on first frame
 
 const ZONES = [
   {
@@ -53,6 +53,9 @@ export default function BrushTimer() {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
+      if (!isMuted && videoRef.current.volume === 0) {
+        videoRef.current.volume = 1;
+      }
     }
   }, [isMuted]);
 
@@ -71,7 +74,7 @@ export default function BrushTimer() {
     }
   };
 
-  // Holds 2:00 for a tiny 250ms on start, then counts down smoothly
+  // Syncs countdown directly to video playback with instant start cut
   const handleTimeUpdate = () => {
     if (!videoRef.current || !isRunning || completedRef.current) return;
     const t = videoRef.current.currentTime;
@@ -120,6 +123,7 @@ export default function BrushTimer() {
     setIsRunning(true);
 
     if (videoRef.current && !videoMissing) {
+      videoRef.current.volume = 1;
       videoRef.current.muted = isMuted;
       videoRef.current.play().catch(() => {
         if (videoRef.current) {
@@ -190,8 +194,7 @@ export default function BrushTimer() {
               ref={videoRef}
               src="/videos/brush-guide.mp4"
               playsInline
-              preload="metadata"
-              muted={isMuted}
+              preload="auto"
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleVideoEnded}
               onError={() => setVideoMissing(true)}
